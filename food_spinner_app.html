@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Food Wheel - Ultimate Food Decision Spinner</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                            700: '#be123c',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Outfit', 'Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'bounce-short': 'bounce 0.5s ease-in-out 2',
+                        'pulse-glow': 'pulseGlow 2s infinite',
+                        'pop-in': 'popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                    },
+                    keyframes: {
+                        pulseGlow: {
+                            '0%, 100%': { boxShadow: '0 0 15px rgba(244, 63, 94, 0.4)' },
+                            '50%': { boxShadow: '0 0 30px rgba(244, 63, 94, 0.8)' },
+                        },
+                        popIn: {
+                            '0%': { opacity: '0', transform: 'scale(0.8)' },
+                            '100%': { opacity: '1', transform: 'scale(1)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        /* Glassmorphism utility */
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .dark .glass {
+            background: rgba(24, 24, 27, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.4);
+            border-radius: 10px;
+        }
+        /* Hide scrollbars for slick mobile horizontal lists */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col justify-between overflow-x-hidden transition-colors duration-300">
+
+    <!-- APP HEADER -->
+    <header class="sticky top-0 z-30 glass shadow-xs px-4 py-3 border-b border-slate-200 dark:border-slate-800">
+        <div class="max-w-md mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-600 via-rose-500 to-amber-400 flex items-center justify-center shadow-md shadow-brand-500/20 text-white font-black text-xl">
+                    🍕
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-lg tracking-tight leading-none bg-gradient-to-r from-brand-600 to-amber-500 bg-clip-text text-transparent">
+                        Food Spinner
+                    </h1>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">What should we eat today?</p>
+                </div>
+            </div>
+
+            <!-- Top Header Actions -->
+            <div class="flex items-center space-x-2">
+                <!-- Sound Toggle -->
+                <button id="soundToggleBtn" onclick="app.toggleSound()" class="p-2.5 rounded-xl bg-slate-200/60 dark:bg-slate-800/80 hover:bg-slate-300 dark:hover:bg-slate-700 transition active:scale-95" title="Toggle Sound">
+                    <svg id="soundOnIcon" class="w-5 h-5 text-slate-700 dark:text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
+                    <svg id="soundOffIcon" class="w-5 h-5 text-red-500 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15zM17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path></svg>
+                </button>
+
+                <!-- Theme Toggle -->
+                <button onclick="app.toggleTheme()" class="p-2.5 rounded-xl bg-slate-200/60 dark:bg-slate-800/80 hover:bg-slate-300 dark:hover:bg-slate-700 transition active:scale-95" title="Toggle Dark/Light Mode">
+                    <svg class="w-5 h-5 text-amber-500 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <svg class="w-5 h-5 text-indigo-400 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                </button>
+
+                <!-- History Button -->
+                <button onclick="app.openHistoryModal()" class="p-2.5 rounded-xl bg-slate-200/60 dark:bg-slate-800/80 hover:bg-slate-300 dark:hover:bg-slate-700 transition active:scale-95 text-slate-700 dark:text-slate-200 relative" title="Spin History">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span id="historyBadge" class="hidden absolute -top-1 -right-1 bg-brand-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN APP CONTAINER -->
+    <main class="flex-1 max-w-md mx-auto w-full px-4 py-4 flex flex-col items-center justify-between relative">
+
+        <!-- PRESET CATEGORIES SCROLLER -->
+        <div class="w-full mb-3">
+            <div class="flex items-center justify-between mb-1.5 px-1">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Pick Category</span>
+                <span id="activeCountBadge" class="text-xs font-semibold text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-950/60 px-2 py-0.5 rounded-full border border-brand-200 dark:border-brand-900">8 Items</span>
+            </div>
+            <div class="flex space-x-2 overflow-x-auto pb-2 pt-1 no-scrollbar -mx-4 px-4" id="presetChipsContainer">
+                <!-- Dynamic Preset Chips loaded via JS -->
+            </div>
+        </div>
+
+        <!-- WHEEL CANVAS AREA -->
+        <div class="relative my-auto flex flex-col items-center justify-center w-full max-w-[340px] aspect-square">
+            
+            <!-- Top Pointer Arrow (With 3D pin effect & click bounce animation) -->
+            <div id="wheelPointer" class="absolute -top-3 z-20 transform -translate-x-1/2 left-1/2 filter drop-shadow-md transition-transform duration-75">
+                <svg width="42" height="48" viewBox="0 0 42 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M21 44L6 12C4.5 9 6.5 4 10 4H32C35.5 4 37.5 9 36 12L21 44Z" fill="url(#pointerGrad)" stroke="#FFFFFF" stroke-width="3.5" stroke-linejoin="round"/>
+                    <circle cx="21" cy="12" r="5" fill="#FFFFFF"/>
+                    <defs>
+                        <linearGradient id="pointerGrad" x1="21" y1="4" x2="21" y2="44" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#FF385C"/>
+                            <stop offset="1" stop-color="#E01E5A"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+
+            <!-- Glowing Outer Ring Shadow -->
+            <div class="absolute inset-0 rounded-full bg-gradient-to-tr from-brand-500/20 via-amber-500/20 to-purple-500/20 blur-xl scale-105 pointer-events-none"></div>
+
+            <!-- Canvas Container -->
+            <div class="relative w-full h-full rounded-full border-4 border-white dark:border-slate-800 shadow-2xl overflow-hidden bg-slate-900">
+                <canvas id="wheelCanvas" class="w-full h-full cursor-grab active:cursor-grabbing touch-none"></canvas>
+            </div>
+
+            <!-- Central SPIN Button Overlay -->
+            <button id="spinBtn" onclick="app.spin()" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10 w-20 h-20 rounded-full bg-gradient-to-tr from-brand-600 via-rose-500 to-amber-400 text-white font-black text-lg tracking-wider uppercase shadow-xl shadow-brand-500/40 border-4 border-white dark:border-slate-800 flex flex-col items-center justify-center hover:scale-105 active:scale-95 transition-all duration-200 focus:outline-none animate-pulse-glow">
+                <span>SPIN</span>
+                <span class="text-[9px] font-normal opacity-90 -mt-1">or Swipe</span>
+            </button>
+        </div>
+
+        <!-- QUICK TOGGLES & ACTIONS BAR -->
+        <div class="w-full mt-4 flex items-center justify-between gap-2">
+            <!-- Manage List Button -->
+            <button onclick="app.openItemsDrawer()" class="flex-1 py-3 px-4 rounded-2xl glass font-bold text-sm text-slate-700 dark:text-slate-200 flex items-center justify-center space-x-2 shadow-sm border border-slate-200 dark:border-slate-800 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 active:scale-95 transition">
+                <svg class="w-4 h-4 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                <span>Edit Items</span>
+            </button>
+
+            <!-- Elimination Mode Toggle -->
+            <button id="eliminationBtn" onclick="app.toggleEliminationMode()" class="py-3 px-4 rounded-2xl glass font-semibold text-xs flex items-center justify-center space-x-2 shadow-sm border border-slate-200 dark:border-slate-800 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 active:scale-95 transition text-slate-600 dark:text-slate-400">
+                <div id="eliminationDot" class="w-2.5 h-2.5 rounded-full bg-slate-400"></div>
+                <span class="whitespace-nowrap">Auto-Remove Winner</span>
+            </button>
+        </div>
+    </main>
+
+    <!-- FOOTER HINT -->
+    <footer class="py-2 text-center text-[11px] text-slate-400 dark:text-slate-600">
+        Swipe wheel to spin with physics velocity 🚀
+    </footer>
+
+
+    <!-- MODAL 1: WINNER CELEBRATION MODAL -->
+    <div id="winnerModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md opacity-0 pointer-events-none transition-opacity duration-300">
+        <!-- Confetti Canvas -->
+        <canvas id="confettiCanvas" class="absolute inset-0 pointer-events-none z-0"></canvas>
+        
+        <div class="relative z-10 w-full max-w-sm glass bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-2xl border border-white/20 text-center transform scale-90 transition-transform duration-300 animate-pop-in">
+            <!-- Close Button -->
+            <button onclick="app.closeWinnerModal()" class="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-full">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+
+            <div class="inline-block px-3 py-1 bg-brand-100 dark:bg-brand-950/80 text-brand-600 dark:text-brand-400 rounded-full text-xs font-bold uppercase tracking-widest mb-3">
+                Winner Decided! 🎉
+            </div>
+
+            <!-- Big Emoji -->
+            <div id="winnerEmoji" class="text-7xl my-2 filter drop-shadow-lg animate-bounce-short">
+                🍕
+            </div>
+
+            <!-- Winner Food Title -->
+            <h2 id="winnerTitle" class="text-2xl font-black tracking-tight text-slate-900 dark:text-white mb-1">
+                Pizza Slice
+            </h2>
+            <p id="winnerSubtitle" class="text-xs text-slate-500 dark:text-slate-400 mb-6">
+                Your culinary destiny has spoken. Enjoy your meal!
+            </p>
+
+            <!-- Action Buttons -->
+            <div class="space-y-2.5">
+                <!-- Find Nearby Restaurants Google Maps Button -->
+                <a id="findNearbyBtn" href="#" target="_blank" rel="noopener" class="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold text-sm shadow-lg shadow-teal-500/25 flex items-center justify-center space-x-2 hover:opacity-95 active:scale-95 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <span>Find Places Nearby</span>
+                </a>
+
+                <!-- Spin Again Button -->
+                <button onclick="app.spinAgainFromModal()" class="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-brand-600 to-amber-500 text-white font-bold text-sm shadow-lg shadow-brand-500/25 flex items-center justify-center space-x-2 hover:opacity-95 active:scale-95 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    <span>Spin Again</span>
+                </button>
+
+                <!-- Copy / Share Button -->
+                <div class="flex gap-2">
+                    <button onclick="app.shareWinner()" class="flex-1 py-2.5 px-3 rounded-xl glass text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-200/50 dark:hover:bg-slate-800/50 active:scale-95 transition flex items-center justify-center space-x-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 10-5.367-2.684 3 3 0 005.367 2.684zm0 9.316a3 3 0 10-5.368 2.684 3 3 0 005.368-2.684z"></path></svg>
+                        <span>Share Choice</span>
+                    </button>
+                    <button id="modalDisableBtn" onclick="app.disableWinnerFromModal()" class="flex-1 py-2.5 px-3 rounded-xl glass text-xs font-semibold text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 active:scale-95 transition flex items-center justify-center space-x-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        <span>Remove Item</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- DRAWER 2: MANAGE ITEMS / EDIT LIST DRAWER -->
+    <div id="itemsDrawer" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 flex justify-end">
+        <div class="w-full max-w-md h-full bg-white dark:bg-slate-900 shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300 ease-out" id="itemsDrawerContent">
+            
+            <!-- Drawer Header -->
+            <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="p-2 bg-brand-100 dark:bg-brand-950 text-brand-600 dark:text-brand-400 rounded-xl">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-base text-slate-900 dark:text-white">Custom Food Wheel</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Add, disable, or color custom options</p>
+                    </div>
+                </div>
+                <button onclick="app.closeItemsDrawer()" class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-full">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Add Item Form -->
+            <form onsubmit="app.addItem(event)" class="p-4 bg-slate-50 dark:bg-slate-950/50 border-b border-slate-200 dark:border-slate-800 flex gap-2">
+                <input type="text" id="newEmojiInput" placeholder="🍔" maxlength="2" class="w-12 py-2 px-2 text-center text-lg rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                <input type="text" id="newNameInput" placeholder="Add food (e.g. Tacos)" required class="flex-1 py-2 px-3 text-sm rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                <button type="submit" class="py-2 px-4 bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm rounded-xl transition active:scale-95 flex items-center space-x-1">
+                    <span>Add</span>
+                </button>
+            </form>
+
+            <!-- Items List -->
+            <div class="flex-1 overflow-y-auto p-4 space-y-2.5" id="itemsListContainer">
+                <!-- Dynamically populated items -->
+            </div>
+
+            <!-- Drawer Footer Controls -->
+            <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 flex gap-2">
+                <button onclick="app.enableAllItems()" class="flex-1 py-2.5 px-3 text-xs font-semibold rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 transition">
+                    Enable All
+                </button>
+                <button onclick="app.resetCurrentPreset()" class="flex-1 py-2.5 px-3 text-xs font-semibold rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 transition">
+                    Reset Preset
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- MODAL 3: HISTORY LOG MODAL -->
+    <div id="historyModal" class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 flex items-center justify-center p-4">
+        <div class="w-full max-w-sm glass bg-white dark:bg-slate-900 rounded-3xl p-5 shadow-2xl border border-white/20 flex flex-col max-h-[80vh]">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+                <h3 class="font-bold text-base text-slate-900 dark:text-white flex items-center space-x-2">
+                    <span>Spin History</span>
+                </h3>
+                <button onclick="app.closeHistoryModal()" class="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-full">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <div id="historyList" class="flex-1 overflow-y-auto py-3 space-y-2 my-1">
+                <!-- History Items -->
+            </div>
+
+            <div class="pt-2 border-t border-slate-200 dark:border-slate-800 flex justify-between">
+                <button onclick="app.clearHistory()" class="text-xs font-semibold text-rose-500 hover:underline">Clear Log</button>
+                <button onclick="app.closeHistoryModal()" class="px-4 py-1.5 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold rounded-xl">Close</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-2.5 rounded-2xl shadow-xl text-xs font-bold flex items-center space-x-2 opacity-0 pointer-events-none transition-all duration-300 transform translate-y-4">
+        <span id="toastMsg">Action completed</span>
+    </div>
+
+
+    <!-- JAVASCRIPT APPLICATION LOGIC -->
+    <script>
+        /**
+         * FOOD SPINNER ENGINE & APP CONTROLLER
+         */
+        const PRESETS = {
+            lunch: {
+                id: 'lunch',
+                name: 'Lunch Ideas',
+                icon: '🍱',
+                items: [
+                    { id: '1', emoji: '🍔', name: 'Burger', color: '#FF5964', enabled: true },
+                    { id: '2', emoji: '🌮', name: 'Tacos', color: '#FF9F1C', enabled: true },
+                    { id: '3', emoji: '🍱', name: 'Sushi', color: '#2EC4B6', enabled: true },
+                    { id: '4', emoji: '🥗', name: 'Salad', color: '#20BF55', enabled: true },
+                    { id: '5', emoji: '🍕', name: 'Pizza', color: '#E71D36', enabled: true },
+                    { id: '6', emoji: '🍜', name: 'Ramen', color: '#FF9F1C', enabled: true },
+                    { id: '7', emoji: '🥪', name: 'Sandwich', color: '#3A86FF', enabled: true },
+                    { id: '8', emoji: '🍝', name: 'Pasta', color: '#8338EC', enabled: true },
+                ]
+            },
+            fastfood: {
+                id: 'fastfood',
+                name: 'Fast Food',
+                icon: '🍟',
+                items: [
+                    { id: 'f1', emoji: '🍗', name: 'Fried Chicken', color: '#FF5964', enabled: true },
+                    { id: 'f2', emoji: '🍔', name: 'Cheeseburger', color: '#FF9F1C', enabled: true },
+                    { id: 'f3', emoji: '🌯', name: 'Burrito', color: '#2EC4B6', enabled: true },
+                    { id: 'f4', emoji: '🌭', name: 'Hot Dog', color: '#E71D36', enabled: true },
+                    { id: 'f5', emoji: '🍟', name: 'French Fries', color: '#FFB703', enabled: true },
+                    { id: 'f6', emoji: '🍩', name: 'Donut', color: '#FF006E', enabled: true }
+                ]
+            },
+            asian: {
+                id: 'asian',
+                name: 'Asian Craving',
+                icon: '🥢',
+                items: [
+                    { id: 'a1', emoji: '🥢', name: 'Pad Thai', color: '#FF5964', enabled: true },
+                    { id: 'a2', emoji: '🥟', name: 'Dim Sum', color: '#FF9F1C', enabled: true },
+                    { id: 'a3', emoji: '🍲', name: 'Pho Bowl', color: '#2EC4B6', enabled: true },
+                    { id: 'a4', emoji: '🥩', name: 'Korean BBQ', color: '#E71D36', enabled: true },
+                    { id: 'a5', emoji: '🍛', name: 'Curry Rice', color: '#8338EC', enabled: true },
+                    { id: 'a6', emoji: '🧋', name: 'Boba Tea', color: '#3A86FF', enabled: true }
+                ]
+            },
+            healthy: {
+                id: 'healthy',
+                name: 'Healthy & Fresh',
+                icon: '🥗',
+                items: [
+                    { id: 'h1', emoji: '🥗', name: 'Poke Bowl', color: '#20BF55', enabled: true },
+                    { id: 'h2', emoji: '🫐', name: 'Smoothie Bowl', color: '#8338EC', enabled: true },
+                    { id: 'h3', emoji: '🥑', name: 'Avocado Toast', color: '#2EC4B6', enabled: true },
+                    { id: 'h4', emoji: '🌯', name: 'Veggie Wrap', color: '#FF9F1C', enabled: true },
+                    { id: 'h5', emoji: '🍓', name: 'Acai Bowl', color: '#FF006E', enabled: true }
+                ]
+            },
+            latenight: {
+                id: 'latenight',
+                name: 'Late Night',
+                icon: '🌙',
+                items: [
+                    { id: 'l1', emoji: '🥙', name: 'Kebab Wrap', color: '#FF5964', enabled: true },
+                    { id: 'l2', emoji: '🍕', name: 'Late Pizza', color: '#E71D36', enabled: true },
+                    { id: 'l3', emoji: '🧀', name: 'Loaded Nachos', color: '#FF9F1C', enabled: true },
+                    { id: 'l4', emoji: '🍗', name: 'Hot Wings', color: '#8338EC', enabled: true },
+                    { id: 'l5', emoji: '🍦', name: 'Ice Cream', color: '#3A86FF', enabled: true }
+                ]
+            },
+            desserts: {
+                id: 'desserts',
+                name: 'Desserts',
+                icon: '🍰',
+                items: [
+                    { id: 'd1', emoji: '🍰', name: 'Cheesecake', color: '#FF006E', enabled: true },
+                    { id: 'd2', emoji: '🍨', name: 'Gelato', color: '#3A86FF', enabled: true },
+                    { id: 'd3', emoji: '🍫', name: 'Fudge Brownie', color: '#8338EC', enabled: true },
+                    { id: 'd4', emoji: '🥖', name: 'Churros', color: '#FF9F1C', enabled: true },
+                    { id: 'd5', emoji: '🍩', name: 'Glazed Donut', color: '#FF5964', enabled: true }
+                ]
+            }
+        };
+
+        // Vibrant Color Palette for slice generation
+        const PALETTE = ['#FF5964', '#FF9F1C', '#2EC4B6', '#E71D36', '#FFB703', '#3A86FF', '#8338EC', '#FF006E', '#10B981', '#F59E0B'];
+
+        class FoodSpinnerApp {
+            constructor() {
+                // State variables
+                this.currentPresetId = 'lunch';
+                this.items = JSON.parse(JSON.stringify(PRESETS.lunch.items));
+                this.history = JSON.parse(localStorage.getItem('food_spinner_history') || '[]');
+                this.soundEnabled = true;
+                this.eliminationMode = false;
+                this.lastWinningItem = null;
+
+                // Physics and Wheel State
+                this.currentAngle = 0; // Radians
+                this.angularVelocity = 0;
+                this.friction = 0.982; // Deceleration rate
+                this.isSpinning = false;
+                this.lastPassedSliceIndex = -1;
+
+                // Touch & Gesture Tracking
+                this.isDragging = false;
+                this.dragStartAngle = 0;
+                this.dragAngles = [];
+                this.dragTimes = [];
+
+                // Sound Audio Context Synth
+                this.audioCtx = null;
+
+                // Canvas Setup
+                this.canvas = document.getElementById('wheelCanvas');
+                this.ctx = this.canvas.getContext('2d');
+
+                this.init();
+            }
+
+            init() {
+                this.setupCanvasDPI();
+                this.renderPresetChips();
+                this.renderWheel();
+                this.renderItemsDrawerList();
+                this.updateHistoryBadge();
+
+                // Window Resize Handler
+                window.addEventListener('resize', () => {
+                    this.setupCanvasDPI();
+                    this.renderWheel();
+                });
+
+                // Attach Drag/Swipe Listeners
+                this.initGestures();
+
+                // Animation Loop
+                requestAnimationFrame((timestamp) => this.animLoop(timestamp));
+            }
+
+            // Web Audio Synthesizer (No external assets required!)
+            initAudio() {
+                if (!this.audioCtx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) {
+                        this.audioCtx = new AudioContext();
+                    }
+                }
+                if (this.audioCtx && this.audioCtx.state === 'suspended') {
+                    this.audioCtx.resume();
+                }
+            }
+
+            playTickSound() {
+                if (!this.soundEnabled) return;
+                try {
+                    this.initAudio();
+                    if (!this.audioCtx) return;
+
+                    const osc = this.audioCtx.createOscillator();
+                    const gain = this.audioCtx.createGain();
+
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600 + Math.random() * 200, this.audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(150, this.audioCtx.currentTime + 0.03);
+
+                    gain.gain.setValueAtTime(0.15, this.audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + 0.03);
+
+                    osc.connect(gain);
+                    gain.connect(this.audioCtx.destination);
+
+                    osc.start();
+                    osc.stop(this.audioCtx.currentTime + 0.035);
+
+                    // Animate pointer top arrow bounce
+                    const pointer = document.getElementById('wheelPointer');
+                    if (pointer) {
+                        pointer.style.transform = 'translate(-50%, -4px) scale(1.1)';
+                        setTimeout(() => {
+                            pointer.style.transform = 'translate(-50%, 0) scale(1.0)';
+                        }, 50);
+                    }
+                } catch(e){}
+            }
+
+            playFanfareSound() {
+                if (!this.soundEnabled) return;
+                try {
+                    this.initAudio();
+                    if (!this.audioCtx) return;
+
+                    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                    notes.forEach((freq, idx) => {
+                        const osc = this.audioCtx.createOscillator();
+                        const gain = this.audioCtx.createGain();
+                        const startTime = this.audioCtx.currentTime + (idx * 0.08);
+
+                        osc.type = 'triangle';
+                        osc.frequency.setValueAtTime(freq, startTime);
+
+                        gain.gain.setValueAtTime(0, startTime);
+                        gain.gain.linearRampToValueAtTime(0.2, startTime + 0.02);
+                        gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.35);
+
+                        osc.connect(gain);
+                        gain.connect(this.audioCtx.destination);
+
+                        osc.start(startTime);
+                        osc.stop(startTime + 0.38);
+                    });
+                } catch(e){}
+            }
+
+            toggleSound() {
+                this.soundEnabled = !this.soundEnabled;
+                document.getElementById('soundOnIcon').classList.toggle('hidden', !this.soundEnabled);
+                document.getElementById('soundOffIcon').classList.toggle('hidden', this.soundEnabled);
+                this.showToast(this.soundEnabled ? '🔊 Sound Enabled' : '🔇 Sound Muted');
+            }
+
+            toggleTheme() {
+                document.documentElement.classList.toggle('dark');
+            }
+
+            // High Resolution Canvas Scaler
+            setupCanvasDPI() {
+                const rect = this.canvas.getBoundingClientRect();
+                const dpi = window.devicePixelRatio || 1;
+                this.canvas.width = rect.width * dpi;
+                this.canvas.height = rect.height * dpi;
+                this.ctx.scale(dpi, dpi);
+            }
+
+            getActiveItems() {
+                return this.items.filter(item => item.enabled);
+            }
+
+            // Render Wheel Slices on Canvas
+            renderWheel() {
+                const activeItems = this.getActiveItems();
+                const rect = this.canvas.getBoundingClientRect();
+                const width = rect.width;
+                const height = rect.height;
+                const centerX = width / 2;
+                const centerY = height / 2;
+                const radius = width / 2 - 6;
+
+                this.ctx.clearRect(0, 0, width, height);
+
+                // Fallback for empty wheel
+                if (activeItems.length === 0) {
+                    this.ctx.fillStyle = '#64748b';
+                    this.ctx.beginPath();
+                    this.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    
+                    this.ctx.fillStyle = '#ffffff';
+                    this.ctx.font = 'bold 16px Outfit, sans-serif';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.fillText('No Items Enabled!', centerX, centerY);
+                    return;
+                }
+
+                const sliceAngle = (Math.PI * 2) / activeItems.length;
+
+                // Draw Slices
+                activeItems.forEach((item, index) => {
+                    const startAngle = this.currentAngle + (index * sliceAngle);
+                    const endAngle = startAngle + sliceAngle;
+
+                    // Slice Background Arc
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(centerX, centerY);
+                    this.ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+                    this.ctx.closePath();
+                    this.ctx.fillStyle = item.color || PALETTE[index % PALETTE.length];
+                    this.ctx.fill();
+
+                    // Slice Border
+                    this.ctx.lineWidth = 2.5;
+                    this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                    this.ctx.stroke();
+
+                    // Draw Slice Text & Emoji
+                    this.ctx.save();
+                    this.ctx.translate(centerX, centerY);
+                    const midAngle = startAngle + (sliceAngle / 2);
+                    this.ctx.rotate(midAngle);
+
+                    // Position text along slice vector
+                    const textDistance = radius * 0.62;
+                    this.ctx.textAlign = 'right';
+                    this.ctx.fillStyle = '#FFFFFF';
+                    this.ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
+                    this.ctx.shadowBlur = 4;
+
+                    // Text & Emoji rendering
+                    const fontScale = activeItems.length > 10 ? 11 : activeItems.length > 7 ? 13 : 15;
+                    this.ctx.font = `bold ${fontScale}px Outfit, sans-serif`;
+                    
+                    // Truncate long text
+                    let nameText = item.name;
+                    if (nameText.length > 11) nameText = nameText.substring(0, 9) + '..';
+
+                    this.ctx.fillText(`${item.emoji || '🍽️'} ${nameText}`, textDistance, 5);
+                    this.ctx.restore();
+                });
+
+                // Inner Hub Circle
+                this.ctx.beginPath();
+                this.ctx.arc(centerX, centerY, 38, 0, Math.PI * 2);
+                this.ctx.fillStyle = '#0F172A';
+                this.ctx.fill();
+                this.ctx.lineWidth = 4;
+                this.ctx.strokeStyle = '#FFFFFF';
+                this.ctx.stroke();
+
+                // Inner Ring Accent
+                this.ctx.beginPath();
+                this.ctx.arc(centerX, centerY, 34, 0, Math.PI * 2);
+                this.ctx.strokeStyle = 'rgba(244, 63, 94, 0.4)';
+                this.ctx.lineWidth = 2;
+                this.ctx.stroke();
+            }
+
+            // Continuous Physics Animation Loop
+            animLoop() {
+                if (Math.abs(this.angularVelocity) > 0.0002) {
+                    this.currentAngle += this.angularVelocity;
+                    this.angularVelocity *= this.friction;
+                    this.currentAngle %= (Math.PI * 2);
+                    if (this.currentAngle < 0) this.currentAngle += Math.PI * 2;
+
+                    // Detect slice passing top pointer for sound ticking
+                    this.checkPointerTick();
+
+                    this.renderWheel();
+                } else if (this.isSpinning) {
+                    // Wheel came to complete stop
+                    this.angularVelocity = 0;
+                    this.isSpinning = false;
+                    this.onSpinComplete();
+                }
+
+                requestAnimationFrame((timestamp) => this.animLoop(timestamp));
+            }
+
+            checkPointerTick() {
+                const activeItems = this.getActiveItems();
+                if (activeItems.length === 0) return;
+
+                const sliceAngle = (Math.PI * 2) / activeItems.length;
+                // Pointer is fixed at 12 o'clock = 3 * Math.PI / 2 radians (270 deg)
+                const pointerAngle = (3 * Math.PI / 2);
+
+                // Calculate relative angle under pointer
+                let normalizedAngle = (pointerAngle - this.currentAngle) % (Math.PI * 2);
+                if (normalizedAngle < 0) normalizedAngle += Math.PI * 2;
+
+                const currentSliceIndex = Math.floor(normalizedAngle / sliceAngle);
+
+                if (currentSliceIndex !== this.lastPassedSliceIndex) {
+                    this.lastPassedSliceIndex = currentSliceIndex;
+                    this.playTickSound();
+                }
+            }
+
+            // Trigger Wheel Spin via Button or Gesture
+            spin(customVelocity = null) {
+                if (this.isSpinning) return;
+                const activeItems = this.getActiveItems();
+                if (activeItems.length < 2) {
+                    this.showToast('⚠️ Please enable at least 2 food items!');
+                    this.openItemsDrawer();
+                    return;
+                }
+
+                this.initAudio();
+                this.isSpinning = true;
+
+                // Random target velocity (between 0.28 and 0.45 rad/frame)
+                const baseVel = customVelocity ? Math.min(Math.max(customVelocity, 0.25), 0.55) : (0.28 + Math.random() * 0.18);
+                this.angularVelocity = baseVel;
+            }
+
+            // Spin Finished Handler
+            onSpinComplete() {
+                const activeItems = this.getActiveItems();
+                if (activeItems.length === 0) return;
+
+                const sliceAngle = (Math.PI * 2) / activeItems.length;
+                const pointerAngle = (3 * Math.PI / 2);
+                let normalizedAngle = (pointerAngle - this.currentAngle) % (Math.PI * 2);
+                if (normalizedAngle < 0) normalizedAngle += Math.PI * 2;
+
+                const winningIndex = Math.floor(normalizedAngle / sliceAngle);
+                const winner = activeItems[winningIndex];
+
+                this.lastWinningItem = winner;
+
+                // Add to history
+                this.history.unshift({
+                    name: winner.name,
+                    emoji: winner.emoji,
+                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                });
+                if (this.history.length > 25) this.history.pop();
+                localStorage.setItem('food_spinner_history', JSON.stringify(this.history));
+                this.updateHistoryBadge();
+
+                // Sound & Celebration
+                this.playFanfareSound();
+                this.openWinnerModal(winner);
+
+                // Elimination mode handling
+                if (this.eliminationMode) {
+                    winner.enabled = false;
+                    this.renderWheel();
+                    this.renderItemsDrawerList();
+                }
+            }
+
+            // Swipe / Touch Drag Gestures
+            initGestures() {
+                const getAngle = (clientX, clientY) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const cx = rect.left + rect.width / 2;
+                    const cy = rect.top + rect.height / 2;
+                    return Math.atan2(clientY - cy, clientX - cx);
+                };
+
+                const startDrag = (x, y) => {
+                    if (this.isSpinning) return;
+                    this.isDragging = true;
+                    this.dragStartAngle = getAngle(x, y);
+                    this.dragAngles = [this.currentAngle];
+                    this.dragTimes = [performance.now()];
+                };
+
+                const moveDrag = (x, y) => {
+                    if (!this.isDragging) return;
+                    const currentTouchAngle = getAngle(x, y);
+                    const delta = currentTouchAngle - this.dragStartAngle;
+                    this.currentAngle += delta;
+                    this.dragStartAngle = currentTouchAngle;
+
+                    this.dragAngles.push(this.currentAngle);
+                    this.dragTimes.push(performance.now());
+                    if (this.dragAngles.length > 5) {
+                        this.dragAngles.shift();
+                        this.dragTimes.shift();
+                    }
+                    this.renderWheel();
+                };
+
+                const endDrag = () => {
+                    if (!this.isDragging) return;
+                    this.isDragging = false;
+
+                    if (this.dragAngles.length >= 2) {
+                        const dt = (this.dragTimes[this.dragTimes.length - 1] - this.dragTimes[0]) / 1000;
+                        const da = this.dragAngles[this.dragAngles.length - 1] - this.dragAngles[0];
+                        if (dt > 0) {
+                            const velocity = da / (dt * 60);
+                            if (Math.abs(velocity) > 0.08) {
+                                this.spin(Math.abs(velocity));
+                            }
+                        }
+                    }
+                };
+
+                // Mouse events
+                this.canvas.addEventListener('mousedown', (e) => startDrag(e.clientX, e.clientY));
+                window.addEventListener('mousemove', (e) => moveDrag(e.clientX, e.clientY));
+                window.addEventListener('mouseup', endDrag);
+
+                // Touch events
+                this.canvas.addEventListener('touchstart', (e) => {
+                    if (e.touches.length === 1) startDrag(e.touches[0].clientX, e.touches[0].clientY);
+                }, { passive: true });
+                window.addEventListener('touchmove', (e) => {
+                    if (e.touches.length === 1) moveDrag(e.touches[0].clientX, e.touches[0].clientY);
+                }, { passive: true });
+                window.addEventListener('touchend', endDrag);
+            }
+
+            // Preset Switcher
+            selectPreset(presetId) {
+                if (this.isSpinning) return;
+                this.currentPresetId = presetId;
+                const preset = PRESETS[presetId];
+                if (preset) {
+                    this.items = JSON.parse(JSON.stringify(preset.items));
+                    this.renderPresetChips();
+                    this.renderWheel();
+                    this.renderItemsDrawerList();
+                    this.showToast(`Switched to "${preset.name}" preset`);
+                }
+            }
+
+            renderPresetChips() {
+                const container = document.getElementById('presetChipsContainer');
+                container.innerHTML = Object.keys(PRESETS).map(key => {
+                    const preset = PRESETS[key];
+                    const active = key === this.currentPresetId;
+                    return `
+                        <button onclick="app.selectPreset('${key}')" 
+                            class="px-3.5 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all duration-200 flex items-center space-x-1.5 shadow-sm active:scale-95 ${
+                                active 
+                                ? 'bg-gradient-to-r from-brand-600 to-amber-500 text-white shadow-brand-500/30' 
+                                : 'bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-850'
+                            }">
+                            <span>${preset.icon}</span>
+                            <span>${preset.name}</span>
+                        </button>
+                    `;
+                }).join('');
+
+                document.getElementById('activeCountBadge').innerText = `${this.getActiveItems().length} Active`;
+            }
+
+            // ITEM MANAGEMENT DRAWER CONTROLS
+            openItemsDrawer() {
+                const drawer = document.getElementById('itemsDrawer');
+                const content = document.getElementById('itemsDrawerContent');
+                drawer.classList.remove('opacity-0', 'pointer-events-none');
+                content.classList.remove('translate-x-full');
+            }
+
+            closeItemsDrawer() {
+                const drawer = document.getElementById('itemsDrawer');
+                const content = document.getElementById('itemsDrawerContent');
+                content.classList.add('translate-x-full');
+                setTimeout(() => {
+                    drawer.classList.add('opacity-0', 'pointer-events-none');
+                }, 250);
+            }
+
+            renderItemsDrawerList() {
+                const container = document.getElementById('itemsListContainer');
+                container.innerHTML = this.items.map((item) => `
+                    <div class="flex items-center justify-between p-2.5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800/60 shadow-xs">
+                        <div class="flex items-center space-x-3 flex-1 min-w-0">
+                            <!-- Toggle Enabled Checkbox -->
+                            <input type="checkbox" ${item.enabled ? 'checked' : ''} 
+                                onchange="app.toggleItem('${item.id}')"
+                                class="w-5 h-5 rounded-lg text-brand-600 focus:ring-brand-500 border-slate-300 dark:border-slate-600 bg-slate-100 dark:bg-slate-700">
+                            
+                            <!-- Emoji & Name -->
+                            <span class="text-xl">${item.emoji}</span>
+                            <span class="text-sm font-semibold truncate ${item.enabled ? 'text-slate-800 dark:text-slate-100' : 'text-slate-400 line-through'}">${item.name}</span>
+                        </div>
+
+                        <div class="flex items-center space-x-2">
+                            <!-- Color Swatch Picker -->
+                            <input type="color" value="${item.color}" 
+                                onchange="app.updateItemColor('${item.id}', this.value)" 
+                                class="w-6 h-6 rounded-full border-0 cursor-pointer bg-transparent">
+                            
+                            <!-- Delete Button -->
+                            <button onclick="app.removeItem('${item.id}')" class="p-1.5 text-slate-400 hover:text-rose-500 rounded-lg transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+                document.getElementById('activeCountBadge').innerText = `${this.getActiveItems().length} Active`;
+            }
+
+            toggleItem(id) {
+                const item = this.items.find(i => i.id === id);
+                if (item) {
+                    item.enabled = !item.enabled;
+                    this.renderWheel();
+                    this.renderItemsDrawerList();
+                }
+            }
+
+            updateItemColor(id, color) {
+                const item = this.items.find(i => i.id === id);
+                if (item) {
+                    item.color = color;
+                    this.renderWheel();
+                }
+            }
+
+            removeItem(id) {
+                this.items = this.items.filter(i => i.id !== id);
+                this.renderWheel();
+                this.renderItemsDrawerList();
+                this.showToast('Item deleted');
+            }
+
+            addItem(e) {
+                e.preventDefault();
+                const emojiInput = document.getElementById('newEmojiInput');
+                const nameInput = document.getElementById('newNameInput');
+                const name = nameInput.value.trim();
+                const emoji = emojiInput.value.trim() || '🍽️';
+
+                if (!name) return;
+
+                const newItem = {
+                    id: 'custom_' + Date.now(),
+                    emoji: emoji,
+                    name: name,
+                    color: PALETTE[this.items.length % PALETTE.length],
+                    enabled: true
+                };
+
+                this.items.push(newItem);
+                nameInput.value = '';
+                emojiInput.value = '';
+
+                this.renderWheel();
+                this.renderItemsDrawerList();
+                this.showToast(`Added "${name}"`);
+            }
+
+            enableAllItems() {
+                this.items.forEach(i => i.enabled = true);
+                this.renderWheel();
+                this.renderItemsDrawerList();
+                this.showToast('Enabled all options');
+            }
+
+            resetCurrentPreset() {
+                const preset = PRESETS[this.currentPresetId];
+                if (preset) {
+                    this.items = JSON.parse(JSON.stringify(preset.items));
+                    this.renderWheel();
+                    this.renderItemsDrawerList();
+                    this.showToast('Reset list to preset');
+                }
+            }
+
+            toggleEliminationMode() {
+                this.eliminationMode = !this.eliminationMode;
+                const btn = document.getElementById('eliminationBtn');
+                const dot = document.getElementById('eliminationDot');
+                
+                if (this.eliminationMode) {
+                    btn.classList.add('border-brand-500', 'text-brand-600', 'dark:text-brand-400');
+                    dot.classList.remove('bg-slate-400');
+                    dot.classList.add('bg-brand-500', 'animate-ping');
+                    this.showToast('Elimination mode ON (Winners removed on pick)');
+                } else {
+                    btn.classList.remove('border-brand-500', 'text-brand-600', 'dark:text-brand-400');
+                    dot.classList.remove('bg-brand-500', 'animate-ping');
+                    dot.classList.add('bg-slate-400');
+                    this.showToast('Elimination mode OFF');
+                }
+            }
+
+            // WINNER MODAL & CONFETTI ENGINE
+            openWinnerModal(winner) {
+                document.getElementById('winnerEmoji').innerText = winner.emoji || '🍕';
+                document.getElementById('winnerTitle').innerText = winner.name;
+                
+                // Google Maps Direct Search Link
+                const mapsQuery = encodeURIComponent(`${winner.name} restaurant near me`);
+                const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
+                document.getElementById('findNearbyBtn').setAttribute('href', mapsUrl);
+
+                const modal = document.getElementById('winnerModal');
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+
+                this.startConfetti();
+            }
+
+            closeWinnerModal() {
+                const modal = document.getElementById('winnerModal');
+                modal.classList.add('opacity-0', 'pointer-events-none');
+                this.stopConfetti();
+            }
+
+            spinAgainFromModal() {
+                this.closeWinnerModal();
+                setTimeout(() => this.spin(), 300);
+            }
+
+            disableWinnerFromModal() {
+                if (this.lastWinningItem) {
+                    this.lastWinningItem.enabled = false;
+                    this.renderWheel();
+                    this.renderItemsDrawerList();
+                    this.showToast(`Removed "${this.lastWinningItem.name}" from wheel`);
+                    this.closeWinnerModal();
+                }
+            }
+
+            shareWinner() {
+                if (!this.lastWinningItem) return;
+                const text = `🍽️ The Food Spinner picked ${this.lastWinningItem.emoji} ${this.lastWinningItem.name} for mealtime!`;
+                
+                // Copy to Clipboard
+                const tempInput = document.createElement('input');
+                tempInput.value = text;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+
+                this.showToast('📋 Recommendation copied to clipboard!');
+            }
+
+            // HISTORY MODAL CONTROLS
+            openHistoryModal() {
+                this.renderHistoryList();
+                const modal = document.getElementById('historyModal');
+                modal.classList.remove('opacity-0', 'pointer-events-none');
+            }
+
+            closeHistoryModal() {
+                const modal = document.getElementById('historyModal');
+                modal.classList.add('opacity-0', 'pointer-events-none');
+            }
+
+            renderHistoryList() {
+                const container = document.getElementById('historyList');
+                if (this.history.length === 0) {
+                    container.innerHTML = `<p class="text-center text-xs text-slate-400 py-6">No spin results recorded yet.</p>`;
+                    return;
+                }
+                container.innerHTML = this.history.map(item => `
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-800">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-lg">${item.emoji}</span>
+                            <span class="text-xs font-bold text-slate-800 dark:text-slate-200">${item.name}</span>
+                        </div>
+                        <span class="text-[10px] font-medium text-slate-400">${item.timestamp}</span>
+                    </div>
+                `).join('');
+            }
+
+            updateHistoryBadge() {
+                const badge = document.getElementById('historyBadge');
+                if (this.history.length > 0) {
+                    badge.innerText = this.history.length;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+
+            clearHistory() {
+                this.history = [];
+                localStorage.removeItem('food_spinner_history');
+                this.renderHistoryList();
+                this.updateHistoryBadge();
+                this.showToast('Spin history cleared');
+            }
+
+            // Confetti Particle System
+            startConfetti() {
+                const canvas = document.getElementById('confettiCanvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+
+                const particles = [];
+                const colors = ['#FF5964', '#FF9F1C', '#2EC4B6', '#E71D36', '#3A86FF', '#8338EC'];
+
+                for (let i = 0; i < 70; i++) {
+                    particles.push({
+                        x: canvas.width / 2,
+                        y: canvas.height / 2,
+                        vx: (Math.random() - 0.5) * 12,
+                        vy: (Math.random() - 0.8) * 14,
+                        size: Math.random() * 8 + 4,
+                        color: colors[Math.floor(Math.random() * colors.length)],
+                        rotation: Math.random() * 360,
+                        rv: (Math.random() - 0.5) * 10
+                    });
+                }
+
+                this.confettiActive = true;
+                const animateConfetti = () => {
+                    if (!this.confettiActive) return;
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    particles.forEach(p => {
+                        p.x += p.vx;
+                        p.y += p.vy;
+                        p.vy += 0.3; // Gravity
+                        p.rotation += p.rv;
+
+                        ctx.save();
+                        ctx.translate(p.x, p.y);
+                        ctx.rotate((p.rotation * Math.PI) / 180);
+                        ctx.fillStyle = p.color;
+                        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                        ctx.restore();
+                    });
+
+                    requestAnimationFrame(animateConfetti);
+                };
+                animateConfetti();
+            }
+
+            stopConfetti() {
+                this.confettiActive = false;
+                const canvas = document.getElementById('confettiCanvas');
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+
+            // Toast UI Notification Helper
+            showToast(message) {
+                const toast = document.getElementById('toast');
+                document.getElementById('toastMsg').innerText = message;
+                toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
+
+                if (this.toastTimeout) clearTimeout(this.toastTimeout);
+                this.toastTimeout = setTimeout(() => {
+                    toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
+                }, 2400);
+            }
+        }
+
+        // Initialize App on DOM Ready
+        let app;
+        window.addEventListener('DOMContentLoaded', () => {
+            app = new FoodSpinnerApp();
+        });
+    </script>
+</body>
+</html>
